@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { formatDate } from '../lib/utils';
+import TimeSelect from '../components/ui/TimeSelect';
 
 interface CreateEventFormData {
   title: string;
@@ -168,23 +169,25 @@ const CreateEvent: React.FC = () => {
                 min={new Date().toISOString().split('T')[0]}
                 {...register('date', { required: 'Date is required' })}
               />
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Time
-                </label>
-                <div className="relative">
-                  <Clock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
-                  <input
-                    type="time"
-                    className="block w-full pl-10 pr-3 py-2 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                    {...register('time', { required: 'Time is required' })}
+              <Controller
+                name="time"
+                control={control}
+                rules={{ 
+                  required: 'Time is required',
+                  pattern: {
+                    value: /^(0?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/,
+                    message: 'Please enter a valid time'
+                  }
+                }}
+                render={({ field }) => (
+                  <TimeSelect
+                    label="Time"
+                    leftIcon={<Clock size={18} />}
+                    error={errors.time?.message}
+                    {...field}
                   />
-                </div>
-                {errors.time && (
-                  <p className="mt-1 text-sm text-error-500">{errors.time.message}</p>
                 )}
-              </div>
+              />
             </motion.div>
             
             <motion.div variants={itemVariants}>
