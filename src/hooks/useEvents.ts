@@ -42,7 +42,7 @@ const MOCK_EVENTS: Event[] = [
   {
     id: '1',
     title: 'Tech Conference 2025',
-    description: 'The biggest tech event of the year with speakers from leading companies discussing future technologies, AI advancements, and more.',
+    description: 'The biggest tech event of the year with speakers from leading companies discussing future technologies, innovation, and industry trends.',
     date: '2025-06-15',
     time: '09:00',
     location: 'San Francisco Convention Center',
