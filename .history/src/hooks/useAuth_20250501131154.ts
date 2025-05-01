@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 interface User {
   id: string;
@@ -10,20 +10,14 @@ interface User {
   avatar?: string;
 }
 
-interface AuthResponse {
-  success: boolean;
-  error?: string;
-  code?: string;
-}
-
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<AuthResponse>;
-  signup: (name: string, email: string, password: string) => Promise<AuthResponse>;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<AuthResponse>;
+  resetPassword: (email: string) => Promise<boolean>;
   checkAuth: () => Promise<void>;
 }
 
@@ -59,24 +53,14 @@ export const useAuth = create<AuthState>((set) => ({
 
       if (response.data.success) {
         set({ user: response.data.user, isAuthenticated: true, isLoading: false });
-        return { success: true };
+        return true;
       }
       set({ isLoading: false });
-      return { 
-        success: false, 
-        error: response.data.message,
-        code: response.data.code
-      };
+      return false;
     } catch (error) {
+      console.error('Login error:', error);
       set({ isLoading: false });
-      if (error instanceof AxiosError && error.response?.data) {
-        return { 
-          success: false, 
-          error: error.response.data.message,
-          code: error.response.data.code
-        };
-      }
-      return { success: false, error: 'An unexpected error occurred' };
+      return false;
     }
   },
 
@@ -91,24 +75,14 @@ export const useAuth = create<AuthState>((set) => ({
 
       if (response.data.success) {
         set({ user: response.data.user, isAuthenticated: true, isLoading: false });
-        return { success: true };
+        return true;
       }
       set({ isLoading: false });
-      return { 
-        success: false, 
-        error: response.data.message,
-        code: response.data.code
-      };
+      return false;
     } catch (error) {
+      console.error('Signup error:', error);
       set({ isLoading: false });
-      if (error instanceof AxiosError && error.response?.data) {
-        return { 
-          success: false, 
-          error: error.response.data.message,
-          code: error.response.data.code
-        };
-      }
-      return { success: false, error: 'An unexpected error occurred' };
+      return false;
     }
   },
 
@@ -118,8 +92,8 @@ export const useAuth = create<AuthState>((set) => ({
       await axios.post(`${API_URL}/auth/logout`);
       set({ user: null, isAuthenticated: false, isLoading: false });
     } catch (error) {
-      set({ isLoading: false });
       console.error('Logout error:', error);
+      set({ isLoading: false });
     }
   },
 
@@ -130,13 +104,11 @@ export const useAuth = create<AuthState>((set) => ({
         email,
       });
       set({ isLoading: false });
-      return { success: response.data.success, error: response.data.message };
+      return response.data.success;
     } catch (error) {
+      console.error('Reset password error:', error);
       set({ isLoading: false });
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        return { success: false, error: error.response.data.message };
-      }
-      return { success: false, error: 'Failed to reset password' };
+      return false;
     }
   },
 }));

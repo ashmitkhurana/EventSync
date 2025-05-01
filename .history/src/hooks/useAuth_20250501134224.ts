@@ -10,20 +10,14 @@ interface User {
   avatar?: string;
 }
 
-interface AuthResponse {
-  success: boolean;
-  error?: string;
-  code?: string;
-}
-
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<AuthResponse>;
-  signup: (name: string, email: string, password: string) => Promise<AuthResponse>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<AuthResponse>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   checkAuth: () => Promise<void>;
 }
 
@@ -62,19 +56,11 @@ export const useAuth = create<AuthState>((set) => ({
         return { success: true };
       }
       set({ isLoading: false });
-      return { 
-        success: false, 
-        error: response.data.message,
-        code: response.data.code
-      };
+      return { success: false, error: response.data.message };
     } catch (error) {
       set({ isLoading: false });
-      if (error instanceof AxiosError && error.response?.data) {
-        return { 
-          success: false, 
-          error: error.response.data.message,
-          code: error.response.data.code
-        };
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        return { success: false, error: error.response.data.message };
       }
       return { success: false, error: 'An unexpected error occurred' };
     }
@@ -94,19 +80,11 @@ export const useAuth = create<AuthState>((set) => ({
         return { success: true };
       }
       set({ isLoading: false });
-      return { 
-        success: false, 
-        error: response.data.message,
-        code: response.data.code
-      };
+      return { success: false, error: response.data.message };
     } catch (error) {
       set({ isLoading: false });
-      if (error instanceof AxiosError && error.response?.data) {
-        return { 
-          success: false, 
-          error: error.response.data.message,
-          code: error.response.data.code
-        };
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        return { success: false, error: error.response.data.message };
       }
       return { success: false, error: 'An unexpected error occurred' };
     }

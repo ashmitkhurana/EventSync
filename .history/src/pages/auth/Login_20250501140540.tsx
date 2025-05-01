@@ -6,6 +6,7 @@ import { MailIcon, LockIcon, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { cn } from '../../lib/utils';
 
 interface LoginFormData {
   email: string;

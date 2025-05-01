@@ -29,28 +29,16 @@ const Signup: React.FC = () => {
   const password = watch('password');
   
   const onSubmit = async (data: SignupFormData) => {
-    console.log('Form submitted with data:', { ...data, password: '[REDACTED]' });
     setSignupError(null);
-    
     try {
-      console.log('Calling signup function...');
       const result = await signup(data.name, data.email, data.password);
-      console.log('Signup result:', { success: result.success, error: result.error });
-      
       if (result.success) {
-        console.log('Signup successful, navigating to home...');
         navigate('/');
       } else {
-        console.error('Signup failed:', result.error);
         setSignupError(result.error || 'Failed to create an account. Please try again.');
       }
     } catch (error) {
-      console.error('Unexpected error during signup:', error);
-      if (error instanceof Error) {
-        setSignupError(`Error: ${error.message}`);
-      } else {
-        setSignupError('An unexpected error occurred. Please try again later.');
-      }
+      setSignupError('An unexpected error occurred. Please try again later.');
     }
   };
   
@@ -65,7 +53,7 @@ const Signup: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Create your account
         </h1>
-        <p className="text-gray-600 dark:text-white">
+        <p className="text-gray-600 dark:text-gray-300">
           Join EventSync to discover and create amazing events
         </p>
       </div>

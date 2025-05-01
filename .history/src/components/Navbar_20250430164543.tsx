@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CalendarDays, Menu, X, Bell, User, LogOut } from 'lucide-react';
+import { CalendarDays, Menu, X, Search, Bell, User, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import ThemeToggle from './ThemeToggle';
 import Button from './ui/Button';
@@ -78,17 +78,15 @@ const Navbar: React.FC = () => {
           </Link>
           
           {/* Desktop Menu */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex space-x-6">
             {navLinks.map(link => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-base font-medium transition-colors hover:text-primary-600 dark:hover:text-primary-400 ${
+                className={`text-sm font-medium transition-colors ${
                   location.pathname === link.path
                     ? 'text-primary-600 dark:text-primary-400'
-                    : 'text-gray-700 dark:text-gray-200'
-                } ${
-                  link.path === '/' ? 'text-primary-600 dark:text-primary-400' : ''
+                    : 'text-gray-700 dark:text-gray-200 hover:text-primary-600 dark:hover:text-primary-400'
                 }`}
               >
                 {link.title}

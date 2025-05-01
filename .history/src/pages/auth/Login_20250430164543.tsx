@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { MailIcon, LockIcon, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import Input from '../../components/ui/Input';
@@ -15,7 +15,7 @@ interface LoginFormData {
 const Login: React.FC = () => {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [loginError, setLoginError] = useState<{ message: string; code?: string } | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
   
   const { 
     register, 
@@ -26,14 +26,14 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginFormData) => {
     setLoginError(null);
     try {
-      const result = await login(data.email, data.password);
-      if (result.success) {
+      const success = await login(data.email, data.password);
+      if (success) {
         navigate('/');
       } else {
-        setLoginError({ message: result.error || 'An error occurred', code: result.code });
+        setLoginError('Invalid email or password. Please try again.');
       }
-    } catch {
-      setLoginError({ message: 'An unexpected error occurred. Please try again later.' });
+    } catch (error) {
+      setLoginError('An unexpected error occurred. Please try again later.');
     }
   };
   
@@ -48,24 +48,21 @@ const Login: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Welcome back
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-300">
           Enter your credentials to sign in to your account
         </p>
       </div>
       
-      <AnimatePresence mode="wait">
-        {loginError && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="mb-6 p-4 bg-error-50 text-error-600 dark:bg-error-900/50 dark:text-error-300 rounded-lg flex items-start"
-          >
-            <AlertCircle size={20} className="mr-3 flex-shrink-0 mt-0.5" />
-            <span>{loginError.message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {loginError && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 bg-error-50 text-error-600 dark:bg-error-900/30 dark:text-error-400 rounded-lg flex items-start"
+        >
+          <AlertCircle size={20} className="mr-3 flex-shrink-0 mt-0.5" />
+          <span>{loginError}</span>
+        </motion.div>
+      )}
       
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Input
@@ -102,14 +99,14 @@ const Login: React.FC = () => {
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 rounded"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
             />
             <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
               Remember me
             </label>
           </div>
           
-          <Link to="/forgot-password" className="text-sm font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300">
+          <Link to="/forgot-password" className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
             Forgot password?
           </Link>
         </div>
@@ -124,12 +121,9 @@ const Login: React.FC = () => {
       </form>
       
       <div className="mt-8 text-center">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           Don't have an account?{' '}
-          <Link 
-            to="/signup" 
-            className="font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300"
-          >
+          <Link to="/signup" className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
             Sign up
           </Link>
         </p>

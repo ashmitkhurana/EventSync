@@ -6,6 +6,7 @@ import { MailIcon, LockIcon, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import { cn } from '../../lib/utils';
 
 interface LoginFormData {
   email: string;
@@ -32,7 +33,7 @@ const Login: React.FC = () => {
       } else {
         setLoginError({ message: result.error || 'An error occurred', code: result.code });
       }
-    } catch {
+    } catch (error) {
       setLoginError({ message: 'An unexpected error occurred. Please try again later.' });
     }
   };
@@ -59,7 +60,12 @@ const Login: React.FC = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="mb-6 p-4 bg-error-50 text-error-600 dark:bg-error-900/50 dark:text-error-300 rounded-lg flex items-start"
+            className={cn(
+              "mb-6 p-4 rounded-lg flex items-start",
+              loginError.code === 'USER_NOT_FOUND'
+                ? "bg-info-50 text-info-600 dark:bg-info-900/50 dark:text-info-300"
+                : "bg-error-50 text-error-600 dark:bg-error-900/50 dark:text-error-300"
+            )}
           >
             <AlertCircle size={20} className="mr-3 flex-shrink-0 mt-0.5" />
             <span>{loginError.message}</span>
@@ -126,12 +132,27 @@ const Login: React.FC = () => {
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Don't have an account?{' '}
-          <Link 
-            to="/signup" 
-            className="font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300"
+          <motion.span
+            animate={loginError?.code === 'USER_NOT_FOUND' ? {
+              scale: [1, 1.1, 1],
+              transition: {
+                repeat: Infinity,
+                duration: 2
+              }
+            } : {}}
           >
-            Sign up
-          </Link>
+            <Link 
+              to="/signup" 
+              className={cn(
+                "font-medium hover:text-primary-600 dark:hover:text-primary-300",
+                loginError?.code === 'USER_NOT_FOUND'
+                  ? "text-primary-500 dark:text-primary-400 underline"
+                  : "text-primary-500 dark:text-primary-400"
+              )}
+            >
+              Sign up
+            </Link>
+          </motion.span>
         </p>
       </div>
     </motion.div>
