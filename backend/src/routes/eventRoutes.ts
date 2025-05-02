@@ -5,7 +5,9 @@ import {
   getEventById, 
   updateEvent, 
   deleteEvent,
-  rsvpToEvent 
+  rsvpToEvent,
+  cancelRsvp,
+  getUserRsvpedEvents
 } from '../controllers/eventController';
 import { protect } from '../middleware/authMiddleware';
 
@@ -19,6 +21,10 @@ router.get('/:id', getEventById);
 router.post('/', protect, createEvent);
 router.put('/:id', protect, updateEvent);
 router.delete('/:id', protect, deleteEvent);
+
+// RSVP routes
 router.post('/:id/rsvp', protect, rsvpToEvent);
+router.delete('/:id/rsvp', protect, cancelRsvp);
+router.get('/users/:userId/rsvped-events', protect, getUserRsvpedEvents);
 
 export default router; 

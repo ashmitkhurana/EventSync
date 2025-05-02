@@ -21,6 +21,10 @@ export interface IEvent extends Document {
     name: string;
     avatar?: string;
   }[];
+  rsvpAttendees: {
+    userId: mongoose.Types.ObjectId;
+    timestamp: Date;
+  }[];
   createdAt: Date;
 }
 
@@ -89,6 +93,17 @@ const EventSchema = new Schema<IEvent>({
     },
     avatar: String
   }],
+  rsvpAttendees: [{
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now
@@ -100,5 +115,6 @@ EventSchema.index({ title: 'text', description: 'text' });
 EventSchema.index({ date: 1 });
 EventSchema.index({ categories: 1 });
 EventSchema.index({ 'organizer.id': 1 });
+EventSchema.index({ 'rsvpAttendees.userId': 1 });
 
 export const Event = mongoose.model<IEvent>('Event', EventSchema); 

@@ -29,14 +29,8 @@ const Login: React.FC = () => {
     try {
       const result = await login(data.email, data.password);
       if (result.success) {
-        // Check for returnTo URL in session storage
-        const returnTo = sessionStorage.getItem('returnTo');
-        if (returnTo) {
-          sessionStorage.removeItem('returnTo'); // Clear it after use
-          navigate(returnTo);
-        } else {
-          navigate('/');
-        }
+        // Always redirect to home page after login
+        navigate('/');
       } else {
         setLoginError({ message: result.error || 'An error occurred', code: result.code });
       }

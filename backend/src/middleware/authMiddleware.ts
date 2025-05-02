@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-interface AuthRequest extends Request {
+interface RequestWithUser extends Request {
   user?: {
     id: string;
     name?: string;
@@ -9,7 +9,7 @@ interface AuthRequest extends Request {
   };
 }
 
-export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const protect = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     let token;
 

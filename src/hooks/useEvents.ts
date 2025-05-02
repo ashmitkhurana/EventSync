@@ -24,6 +24,10 @@ export interface Event {
     name: string;
     avatar?: string;
   }[];
+  rsvpAttendees: {
+    userId: string;
+    timestamp: string;
+  }[];
   createdAt: string;
 }
 
@@ -37,6 +41,9 @@ interface EventsState {
   updateEvent: (id: string, event: Partial<Event>) => Promise<Event | null>;
   deleteEvent: (id: string) => Promise<boolean>;
   rsvp: (eventId: string, userId: string, status: 'going' | 'interested' | 'not-going') => Promise<boolean>;
+  rsvpToEvent: (eventId: string) => Promise<Event>;
+  cancelRsvp: (eventId: string) => Promise<Event>;
+  fetchUserRsvpedEvents: (userId: string) => Promise<Event[]>;
 }
 
 // Configure axios
@@ -137,4 +144,63 @@ export const useEvents = create<EventsState>((set, get) => ({
       return false;
     }
   },
+
+  rsvpToEvent: async (eventId) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const response = await axios.post(`${API_BASE_URL}/events/${eventId}/rsvp`);
+      const updatedEvent = response.data.event;
+      
+      set(state => {
+        const updatedEvents = state.events.map(event => 
+          event.id === eventId ? updatedEvent : event
+        );
+        return { events: updatedEvents, isLoading: false };
+      });
+      
+      return updatedEvent;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to RSVP to event';
+      set({ error: errorMessage, isLoading: false });
+      throw error;
+    }
+  },
+
+  cancelRsvp: async (eventId) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/events/${eventId}/rsvp`);
+      const updatedEvent = response.data.event;
+      
+      set(state => {
+        const updatedEvents = state.events.map(event => 
+          event.id === eventId ? updatedEvent : event
+        );
+        return { events: updatedEvents, isLoading: false };
+      });
+      
+      return updatedEvent;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to cancel RSVP';
+      set({ error: errorMessage, isLoading: false });
+      throw error;
+    }
+  },
+
+  fetchUserRsvpedEvents: async (userId) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const response = await axios.get(`${API_BASE_URL}/events/users/${userId}/rsvped-events`);
+      return response.data;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch RSVPed events';
+      set({ error: errorMessage, isLoading: false });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  }
 }));

@@ -3,20 +3,20 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 import { validationResult } from 'express-validator';
 
-interface AuthRequest extends Request {
+// Helper function to generate JWT token
+const generateToken = (userId: string): string => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET!, {
+    expiresIn: '30d',
+  });
+};
+
+interface RequestWithUser extends Request {
   user?: {
     id: string;
     name?: string;
     email?: string;
   };
 }
-
-// Helper function to generate JWT token
-const generateToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET!, {
-    expiresIn: '7d',
-  });
-};
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -33,7 +33,7 @@ export const signup = async (req: Request, res: Response) => {
       });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, phone, password, education, bio } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -46,14 +46,35 @@ export const signup = async (req: Request, res: Response) => {
       });
     }
 
+    // Handle file uploads
+    let avatarPath: string | undefined;
+    let resumePath: string | undefined;
+
+    if (req.files && typeof req.files === 'object' && !Array.isArray(req.files)) {
+      // Process avatar if uploaded
+      if (req.files.avatar && req.files.avatar.length > 0) {
+        avatarPath = `/uploads/avatars/${req.files.avatar[0].filename}`;
+      }
+      
+      // Process resume if uploaded
+      if (req.files.resume && req.files.resume.length > 0) {
+        resumePath = `/uploads/resumes/${req.files.resume[0].filename}`;
+      }
+    }
+
     // Create new user
     const user = new User({
       name,
       email,
+      phone,
       password,
+      education: education || undefined,
+      bio: bio || undefined,
+      avatar: avatarPath,
+      resumeUrl: resumePath,
     });
 
-    console.log('Attempting to save user:', { name, email });
+    console.log('Attempting to save user:', { name, email, phone });
     await user.save();
     console.log('User saved successfully');
 
@@ -65,7 +86,7 @@ export const signup = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
     res.status(201).json({
@@ -74,7 +95,11 @@ export const signup = async (req: Request, res: Response) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         avatar: user.avatar,
+        education: user.education,
+        bio: user.bio,
+        resumeUrl: user.resumeUrl,
       },
     });
   } catch (error) {
@@ -145,7 +170,7 @@ export const login = async (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
     console.log('Cookie set successfully');
 
@@ -187,7 +212,7 @@ export const logout = (_req: Request, res: Response) => {
   });
 };
 
-export const getCurrentUser = async (req: AuthRequest, res: Response) => {
+export const getCurrentUser = async (req: RequestWithUser, res: Response) => {
   try {
     const user = await User.findById(req.user?.id).select('-password');
     if (!user) {
@@ -203,7 +228,11 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
         avatar: user.avatar,
+        education: user.education,
+        bio: user.bio,
+        resumeUrl: user.resumeUrl,
       },
     });
   } catch (error) {

@@ -4,8 +4,12 @@ import bcrypt from 'bcryptjs';
 export interface IUser extends mongoose.Document {
   name: string;
   email: string;
+  phone: string;
   password: string;
   avatar?: string;
+  education?: string;
+  bio?: string;
+  resumeUrl?: string;
   verified: boolean;
   verificationToken?: string;
   resetPasswordToken?: string;
@@ -27,12 +31,28 @@ const userSchema = new mongoose.Schema<IUser>(
       trim: true,
       lowercase: true,
     },
+    phone: {
+      type: String,
+      required: [true, 'Phone number is required'],
+      trim: true,
+    },
     password: {
       type: String,
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters long'],
     },
     avatar: {
+      type: String,
+    },
+    education: {
+      type: String,
+      trim: true,
+    },
+    bio: {
+      type: String,
+      trim: true,
+    },
+    resumeUrl: {
       type: String,
     },
     verified: {
@@ -56,8 +76,8 @@ userSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
-  } catch (error: any) {
-    next(error);
+  } catch (error) {
+    next(error instanceof Error ? error : new Error('Unknown error during password hashing'));
   }
 });
 
