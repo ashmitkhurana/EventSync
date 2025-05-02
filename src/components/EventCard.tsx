@@ -42,9 +42,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, featured = false }) => {
           alt={event.title} 
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
-        <div className="absolute top-3 right-3 flex gap-2">
-          {event.categories.slice(0, 2).map(category => (
-            <CategoryBadge key={category} category={category} />
+        <div className="absolute top-0 right-0 left-0 p-3 bg-gradient-to-b from-black/50 to-transparent flex flex-wrap gap-1.5 justify-end">
+          {event.categories.map(category => (
+            <CategoryBadge key={category} category={category} size="sm" />
           ))}
         </div>
       </div>
