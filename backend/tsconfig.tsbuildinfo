@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/server.ts","./src/controllers/auth.controller.ts","./src/controllers/eventcontroller.ts","./src/middleware/authmiddleware.ts","./src/models/event.ts","./src/models/user.ts","./src/routes/auth.routes.ts","./src/routes/eventroutes.ts","./src/types/express/index.d.ts"],"version":"5.8.3"}
