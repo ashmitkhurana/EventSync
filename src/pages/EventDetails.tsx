@@ -143,15 +143,15 @@ const EventDetails: React.FC = () => {
             <div className="md:col-span-2">
               {/* Description */}
               <div className="prose dark:prose-invert max-w-none mb-8">
-                <h2 className="text-xl font-semibold mb-4">About this event</h2>
-                <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">About this event</h2>
+                <p className="text-gray-600 dark:text-gray-100 whitespace-pre-wrap">
                   {event.description}
                 </p>
               </div>
 
               {/* Organizer */}
               <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-4">Organizer</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Organizer</h2>
                 <div className="flex items-center">
                   <img
                     src={event.organizer.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.organizer.name)}&background=random`}
@@ -162,7 +162,7 @@ const EventDetails: React.FC = () => {
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       {event.organizer.name}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-gray-200">
                       Event Organizer
                     </p>
                   </div>
@@ -180,10 +180,10 @@ const EventDetails: React.FC = () => {
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       Date and time
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-gray-600 dark:text-gray-100">
                       {formatDate(event.date)}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-gray-600 dark:text-gray-100">
                       {event.time}
                     </p>
                   </div>
@@ -196,7 +196,7 @@ const EventDetails: React.FC = () => {
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       Location
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-gray-600 dark:text-gray-100">
                       {event.location}
                     </p>
                   </div>
@@ -209,7 +209,7 @@ const EventDetails: React.FC = () => {
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       Attendees
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-gray-600 dark:text-gray-100">
                       {event.attendees.length} attending • {event.maxAttendees - event.attendees.length} spots left
                     </p>
                   </div>
@@ -222,7 +222,7 @@ const EventDetails: React.FC = () => {
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       Duration
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
+                    <p className="text-gray-600 dark:text-gray-100">
                       2 hours
                     </p>
                   </div>

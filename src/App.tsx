@@ -15,6 +15,7 @@ import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import CreateEvent from './pages/CreateEvent';
+import CreateMultipleEvents from './pages/CreateMultipleEvents';
 import EventDetails from './pages/EventDetails';
 import EventAnalytics from './pages/EventAnalytics';
 import EventRsvps from './pages/EventRsvps';
@@ -51,6 +52,11 @@ const App: React.FC = () => {
             <Route path="/create-event" element={
               <ProtectedRoute>
                 <CreateEvent />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-multiple-events" element={
+              <ProtectedRoute>
+                <CreateMultipleEvents />
               </ProtectedRoute>
             } />
             <Route path="/event/:id" element={<EventDetails />} />

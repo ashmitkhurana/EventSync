@@ -47,10 +47,7 @@ const Navbar: React.FC = () => {
     };
   }, [profileDropdownOpen]);
   
-  const navLinks = [
-    { title: 'Home', path: '/' },
-    { title: 'Browse Events', path: '/browse' },
-    { title: 'Create Event', path: '/create-event' },
+  const navLinks: { title: string; path: string }[] = [
   ];
   
   const mobileMenuVariants = {

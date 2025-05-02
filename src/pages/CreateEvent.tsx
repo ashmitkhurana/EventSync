@@ -78,6 +78,7 @@ const CreateEvent: React.FC = () => {
           avatar: user.avatar,
         },
         attendees: [],
+        rsvpAttendees: [],
       };
       const newEvent = await createEvent(eventData);
       if (newEvent) {
@@ -395,7 +396,7 @@ const CreateEvent: React.FC = () => {
                 </div>
                 
                 <div className="prose dark:prose-invert max-w-none">
-                  <h3 className="text-lg font-semibold mb-2">About this event</h3>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">About this event</h3>
                   <p className="whitespace-pre-line">{watchedValues.description}</p>
                 </div>
                 
@@ -474,9 +475,19 @@ const CreateEvent: React.FC = () => {
         <h1 className="text-3xl font-raleway font-extrabold text-gray-900 dark:text-white text-center mb-2">
           Create an Event
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 text-center mb-8 font-raleway font-light">
+        <p className="text-gray-600 dark:text-gray-400 text-center mb-4 font-raleway font-light">
           Fill in the details below to create and share your event
         </p>
+        
+        <div className="flex justify-center mb-8">
+          <Button
+            variant="outline"
+            className="mr-4 font-raleway"
+            onClick={() => navigate('/create-multiple-events')}
+          >
+            Create Multiple Events
+          </Button>
+        </div>
 
         {/* Progress Steps */}
         <div className="mb-8">
