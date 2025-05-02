@@ -471,10 +471,10 @@ const CreateEvent: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">
+        <h1 className="text-3xl font-raleway font-extrabold text-gray-900 dark:text-white text-center mb-2">
           Create an Event
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
+        <p className="text-gray-600 dark:text-gray-400 text-center mb-8 font-raleway font-light">
           Fill in the details below to create and share your event
         </p>
 
@@ -496,7 +496,7 @@ const CreateEvent: React.FC = () => {
                     {step.icon}
                   </div>
                   <span
-                    className={`ml-2 text-sm font-medium ${
+                    className={`ml-2 text-sm font-medium font-raleway ${
                       currentStep === index
                         ? 'text-primary-500'
                         : 'text-gray-500 dark:text-gray-400'
@@ -521,7 +521,7 @@ const CreateEvent: React.FC = () => {
 
         {/* Form */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="font-raleway">
             {renderStep()}
             
             <div className="mt-8 flex justify-between">
@@ -530,6 +530,7 @@ const CreateEvent: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={prevStep}
+                  className="font-medium"
                 >
                   Back
                 </Button>
@@ -544,6 +545,7 @@ const CreateEvent: React.FC = () => {
                       (currentStep === 0 && (!watchedValues.title || !watchedValues.description || !watchedValues.date || !watchedValues.time || !watchedValues.location)) ||
                       (currentStep === 1 && selectedCategories.length === 0)
                     }
+                    className="font-semibold"
                   >
                     Continue
                   </Button>
@@ -551,6 +553,7 @@ const CreateEvent: React.FC = () => {
                   <Button
                     type="submit"
                     disabled={isLoading}
+                    className="font-bold"
                   >
                     {isLoading ? 'Creating...' : 'Create Event'}
                   </Button>

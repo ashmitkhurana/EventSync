@@ -61,7 +61,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter var', 'sans-serif'],
+        raleway: ['Raleway', 'sans-serif'],
+        sans: ['Raleway', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
