@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { formatDate } from '../lib/utils';
 import { Event } from '../hooks/useEvents';
+import { useAuth } from '../hooks/useAuth';
 import CategoryBadge from './CategoryBadge';
 
 interface EventCardProps {
@@ -12,6 +13,10 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, featured = false }) => {
+  const { user } = useAuth();
+  const isOrganizer = user && event.organizer.id === user.id;
+  const isAttendee = user && event.attendees.some(a => a.id === user.id);
+
   const cardVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -47,6 +52,20 @@ const EventCard: React.FC<EventCardProps> = ({ event, featured = false }) => {
             <CategoryBadge key={category} category={category} size="sm" />
           ))}
         </div>
+        {(isOrganizer || isAttendee) && (
+          <div className="absolute bottom-3 left-3 flex gap-2">
+            {isOrganizer && (
+              <span className="bg-primary-500 text-white text-xs px-2 py-1 rounded-full">
+                Organizer
+              </span>
+            )}
+            {isAttendee && (
+              <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                Attending
+              </span>
+            )}
+          </div>
+        )}
       </div>
       
       <div className={cn(

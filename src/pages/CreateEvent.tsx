@@ -32,7 +32,7 @@ const CreateEvent: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { createEvent, isLoading } = useEvents();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [previewImageUrl, setPreviewImageUrl] = useState('');
 
@@ -42,7 +42,7 @@ const CreateEvent: React.FC = () => {
     control,
     setValue,
     watch,
-    formState: { errors, isValid } 
+    formState: { errors } 
   } = useForm<CreateEventFormData>({
     defaultValues: {
       isPublic: true,
@@ -56,6 +56,10 @@ const CreateEvent: React.FC = () => {
   const watchedValues = watch();
   
   const onSubmit = async (data: CreateEventFormData) => {
+    if (currentStep !== 2) {
+      return;
+    }
+    
     if (!user) {
       console.error('No user found');
       return;
@@ -72,9 +76,7 @@ const CreateEvent: React.FC = () => {
         },
         attendees: [],
       };
-      console.log('Sending event data:', eventData);
       const newEvent = await createEvent(eventData);
-      console.log('Event created:', newEvent);
       if (newEvent) {
         navigate(`/event/${newEvent.id}`);
       }
@@ -122,7 +124,7 @@ const CreateEvent: React.FC = () => {
   // Render Form Steps
   const renderStep = () => {
     switch (currentStep) {
-      case 1:
+      case 0: // Basic Info
         return (
           <motion.div
             variants={containerVariants}
@@ -207,8 +209,8 @@ const CreateEvent: React.FC = () => {
             </motion.div>
           </motion.div>
         );
-      
-      case 2:
+
+      case 1: // Details
         return (
           <motion.div
             variants={containerVariants}
@@ -216,6 +218,27 @@ const CreateEvent: React.FC = () => {
             animate="visible"
             className="space-y-6"
           >
+            <motion.div variants={itemVariants}>
+              <Input
+                label="Image URL"
+                leftIcon={<ImageIcon size={18} />}
+                placeholder="Enter URL for event cover image"
+                value={watchedValues.imageUrl}
+                onChange={handleImageUrlChange}
+              />
+              
+              {previewImageUrl || watchedValues.imageUrl ? (
+                <div className="mt-3 relative aspect-video rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700">
+                  <img
+                    src={previewImageUrl || watchedValues.imageUrl}
+                    alt="Event cover preview"
+                    className="w-full h-full object-cover"
+                    onError={() => setPreviewImageUrl('')}
+                  />
+                </div>
+              ) : null}
+            </motion.div>
+            
             <motion.div variants={itemVariants}>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Event Categories (Select up to 3)
@@ -240,27 +263,6 @@ const CreateEvent: React.FC = () => {
               {selectedCategories.length === 0 && (
                 <p className="mt-1 text-sm text-error-500">Please select at least one category</p>
               )}
-            </motion.div>
-            
-            <motion.div variants={itemVariants}>
-              <Input
-                label="Image URL"
-                leftIcon={<ImageIcon size={18} />}
-                placeholder="Enter URL for event cover image"
-                value={watchedValues.imageUrl}
-                onChange={handleImageUrlChange}
-              />
-              
-              {previewImageUrl || watchedValues.imageUrl ? (
-                <div className="mt-3 relative aspect-video rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700">
-                  <img
-                    src={previewImageUrl || watchedValues.imageUrl}
-                    alt="Event cover preview"
-                    className="w-full h-full object-cover"
-                    onError={() => setPreviewImageUrl('')}
-                  />
-                </div>
-              ) : null}
             </motion.div>
             
             <motion.div variants={itemVariants}>
@@ -329,8 +331,8 @@ const CreateEvent: React.FC = () => {
             </motion.div>
           </motion.div>
         );
-      
-      case 3:
+
+      case 2: // Preview
         return (
           <motion.div
             variants={containerVariants}
@@ -338,74 +340,78 @@ const CreateEvent: React.FC = () => {
             animate="visible"
             className="space-y-6"
           >
+            {/* Event Preview Card */}
             <motion.div 
               variants={itemVariants}
-              className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md"
+              className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg"
             >
-              <div className="aspect-video overflow-hidden bg-gray-100 dark:bg-gray-700">
+              <div className="relative aspect-video">
                 <img
                   src={watchedValues.imageUrl}
                   alt={watchedValues.title}
                   className="w-full h-full object-cover"
                 />
-              </div>
-              
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                  {watchedValues.title || 'Event Title'}
-                </h2>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="absolute top-0 right-0 left-0 p-3 bg-gradient-to-b from-black/50 to-transparent flex flex-wrap gap-1.5 justify-end">
                   {selectedCategories.map(category => (
-                    <span 
-                      key={category}
-                      className="px-3 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-300"
-                    >
+                    <span key={category} className="bg-white/90 text-gray-900 text-xs px-2 py-1 rounded-full">
                       {category}
                     </span>
                   ))}
                 </div>
+              </div>
+              
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                  {watchedValues.title}
+                </h2>
                 
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center text-gray-500 dark:text-gray-400">
-                    <CalendarDays size={16} className="mr-2" />
-                    <span>
-                      {watchedValues.date ? formatDate(watchedValues.date) : 'Event Date'}
-                      {watchedValues.time && ` • ${watchedValues.time}`}
-                    </span>
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <CalendarDays size={20} className="mr-3" />
+                    <div>
+                      <p className="font-medium">Date and Time</p>
+                      <p>{formatDate(watchedValues.date)} • {watchedValues.time}</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center text-gray-500 dark:text-gray-400">
-                    <MapPin size={16} className="mr-2" />
-                    <span>{watchedValues.location || 'Event Location'}</span>
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <MapPin size={20} className="mr-3" />
+                    <div>
+                      <p className="font-medium">Location</p>
+                      <p>{watchedValues.location}</p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center text-gray-500 dark:text-gray-400">
-                    <Users size={16} className="mr-2" />
-                    <span>
-                      Max {watchedValues.maxAttendees || '0'} attendees • {watchedValues.isPublic ? 'Public' : 'Private'} event
-                    </span>
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <Users size={20} className="mr-3" />
+                    <div>
+                      <p className="font-medium">Capacity</p>
+                      <p>Maximum {watchedValues.maxAttendees} attendees</p>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    About this event
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line">
-                    {watchedValues.description || 'No description provided.'}
-                  </p>
+                <div className="prose dark:prose-invert max-w-none">
+                  <h3 className="text-lg font-semibold mb-2">About this event</h3>
+                  <p className="whitespace-pre-line">{watchedValues.description}</p>
                 </div>
                 
-                <div className="border-t border-gray-200 dark:border-gray-700 mt-6 pt-4 flex items-center">
-                  <img 
-                    src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || '')}&background=random`}
-                    alt={user?.name || 'Organizer'}
-                    className="w-8 h-8 rounded-full mr-2"
-                  />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Organized by <span className="font-medium">{user?.name}</span>
-                  </span>
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center">
+                    <img 
+                      src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || '')}&background=random`}
+                      alt={user?.name}
+                      className="w-10 h-10 rounded-full mr-3"
+                    />
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        Organized by {user?.name}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {watchedValues.isPublic ? 'Public' : 'Private'} Event
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -424,118 +430,94 @@ const CreateEvent: React.FC = () => {
             </motion.div>
           </motion.div>
         );
-      
+
       default:
         return null;
     }
   };
   
   const nextStep = () => {
-    if (currentStep === 1) {
+    if (currentStep === 0) {
       if (!watchedValues.title || !watchedValues.description || !watchedValues.date || 
           !watchedValues.time || !watchedValues.location) {
         return;
       }
     }
     
-    if (currentStep === 2 && selectedCategories.length === 0) {
-      return;
+    if (currentStep === 1) {
+      if (selectedCategories.length === 0) {
+        return;
+      }
     }
     
-    setCurrentStep(currentStep + 1);
+    // Only allow proceeding to next step if we're not already at the preview step
+    if (currentStep < 2) {
+      setCurrentStep(currentStep + 1);
+    }
   };
   
   const prevStep = () => {
     setCurrentStep(currentStep - 1);
   };
   
-  const isStepValid = () => {
-    if (currentStep === 1) {
-      return !!watchedValues.title && !!watchedValues.description && 
-             !!watchedValues.date && !!watchedValues.time && !!watchedValues.location;
-    }
-    
-    if (currentStep === 2) {
-      return selectedCategories.length > 0;
-    }
-    
-    return true;
-  };
-  
   return (
-    <div className="container mx-auto px-4 pt-24 pb-16">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-3xl mx-auto"
-      >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Create a New Event
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Fill in the details below to create and share your event
-          </p>
-        </div>
-        
-        {/* Steps Indicator */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+      <div className="container max-w-4xl mx-auto px-4">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-2">
+          Create an Event
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
+          Fill in the details below to create and share your event
+        </p>
+
+        {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center justify-center">
             {steps.map((step, index) => (
               <React.Fragment key={step.title}>
-                {/* Step circle */}
-                <div 
-                  className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                    index + 1 === currentStep
-                      ? 'bg-primary-600 text-white'
-                      : index + 1 < currentStep
-                        ? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
-                        : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-                  }`}
-                >
-                  {step.icon}
-                </div>
-                
-                {/* Connector line */}
-                {index < steps.length - 1 && (
-                  <div 
-                    className={`w-16 h-1 ${
-                      index + 1 < currentStep
-                        ? 'bg-primary-600 dark:bg-primary-400'
-                        : 'bg-gray-200 dark:bg-gray-700'
+                <div className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      currentStep > index
+                        ? 'bg-primary-500 text-white'
+                        : currentStep === index
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
                     }`}
-                  ></div>
+                  >
+                    {step.icon}
+                  </div>
+                  <span
+                    className={`ml-2 text-sm font-medium ${
+                      currentStep === index
+                        ? 'text-primary-500'
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                  >
+                    {step.title}
+                  </span>
+                </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`w-24 h-1 mx-2 ${
+                      currentStep > index
+                        ? 'bg-primary-500'
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                  />
                 )}
               </React.Fragment>
             ))}
           </div>
-          
-          <div className="flex justify-between mt-2">
-            {steps.map((step, index) => (
-              <div key={step.title} className="w-32 text-center">
-                <span 
-                  className={`text-sm font-medium ${
-                    index + 1 === currentStep
-                      ? 'text-primary-600 dark:text-primary-400'
-                      : 'text-gray-500 dark:text-gray-400'
-                  }`}
-                >
-                  {step.title}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
-        
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+
+        {/* Form */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="p-6">
-              {renderStep()}
-            </div>
+            {renderStep()}
             
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-              {currentStep > 1 ? (
+            <div className="mt-8 flex justify-between">
+              {currentStep > 0 && (
                 <Button
                   type="button"
                   variant="outline"
@@ -543,31 +525,33 @@ const CreateEvent: React.FC = () => {
                 >
                   Back
                 </Button>
-              ) : (
-                <div></div>
               )}
               
-              {currentStep < steps.length ? (
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  disabled={!isStepValid()}
-                >
-                  Continue
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  loading={isLoading}
-                  disabled={!isValid || selectedCategories.length === 0}
-                >
-                  Create Event
-                </Button>
-              )}
+              <div className="ml-auto">
+                {currentStep < 2 ? (
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={
+                      (currentStep === 0 && (!watchedValues.title || !watchedValues.description || !watchedValues.date || !watchedValues.time || !watchedValues.location)) ||
+                      (currentStep === 1 && selectedCategories.length === 0)
+                    }
+                  >
+                    Continue
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Creating...' : 'Create Event'}
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
