@@ -56,7 +56,10 @@ const CreateEvent: React.FC = () => {
   const watchedValues = watch();
   
   const onSubmit = async (data: CreateEventFormData) => {
+    // Ensure we're on the preview step before allowing submission
     if (currentStep !== 2) {
+      // If not on preview step, move to next step
+      nextStep();
       return;
     }
     
@@ -456,6 +459,11 @@ const CreateEvent: React.FC = () => {
     }
   };
   
+  const handleContinue = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent form submission
+    nextStep();
+  };
+
   const prevStep = () => {
     setCurrentStep(currentStep - 1);
   };
@@ -513,7 +521,7 @@ const CreateEvent: React.FC = () => {
 
         {/* Form */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             {renderStep()}
             
             <div className="mt-8 flex justify-between">
@@ -531,7 +539,7 @@ const CreateEvent: React.FC = () => {
                 {currentStep < 2 ? (
                   <Button
                     type="button"
-                    onClick={nextStep}
+                    onClick={handleContinue}
                     disabled={
                       (currentStep === 0 && (!watchedValues.title || !watchedValues.description || !watchedValues.date || !watchedValues.time || !watchedValues.location)) ||
                       (currentStep === 1 && selectedCategories.length === 0)
